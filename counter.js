@@ -9,7 +9,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const CSV_OUTPUT_FILE = 'output.csv';
+const CSV_OUTPUT_DIR = `${process.cwd()}/output`;
 
 function main() {
     // process command line arguments
@@ -17,7 +17,8 @@ function main() {
     if (!args.length) {
         throw new Error('Please provide the location to a text file!');
     };
-    const text = fs.readFileSync(path.resolve(process.cwd(), args[0])).toString();
+    const inputFile = path.resolve(process.cwd(), args[0]);
+    const text = fs.readFileSync(inputFile).toString();
 
     const wordCountOccurrence = {};
     // process text and count word occurrence
@@ -40,7 +41,10 @@ function main() {
     normalizedArray.forEach((occurrence) => {
         csv += `${occurrence.word},${occurrence.count}\n`;
     });
-    fs.writeFileSync(CSV_OUTPUT_FILE, csv);
+    if (!fs.existsSync(CSV_OUTPUT_DIR)) {
+        fs.mkdirSync(CSV_OUTPUT_DIR);
+    };
+    fs.writeFileSync(path.resolve(CSV_OUTPUT_DIR, `${path.parse(inputFile).base}.csv`), csv);
     // log word count occurrence
     normalizedArray.forEach((occurrence) => {
         console.log(`Word: '${occurrence.word}' Count: ${occurrence.count}`);
